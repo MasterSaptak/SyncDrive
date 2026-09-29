@@ -1,0 +1,8 @@
+{
+  "name": "SyncDrive",
+  "description": "Production-oriented cloud storage SaaS with Google Drive backend isolation, logical quota accounting, file management, and manual UPI subscription workflow.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

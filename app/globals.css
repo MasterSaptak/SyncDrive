@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --bg-app: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-muted: #f9fafb;
+  --border-app: #e5e7eb;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+}
+
+html.dark {
+  color-scheme: dark;
+  --bg-app: #09090b;
+  --bg-surface: #121215;
+  --bg-muted: #18181b;
+  --border-app: #27272a;
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+}
+
+/* Smooth theme transitions */
+body {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Global Dark Mode Elevators and Palette Overrides */
+.dark body,
+.dark .min-h-screen {
+  background-color: #09090b !important;
+  color: #f4f4f5 !important;
+}
+
+/* Headers, Navbars, Sidebars */
+.dark header,
+.dark aside {
+  background-color: rgba(18, 18, 21, 0.95) !important;
+  border-color: #27272a !important;
+}
+
+/* Surface backgrounds */
+.dark .bg-white {
+  background-color: #121215 !important;
+  color: #f4f4f5;
+}
+
+.dark .bg-neutral-50,
+.dark .bg-neutral-50\/60,
+.dark .bg-neutral-50\/70,
+.dark .bg-neutral-50\/80 {
+  background-color: #18181b !important;
+}
+
+.dark .bg-neutral-100 {
+  background-color: #27272a !important;
+  color: #e4e4e7 !important;
+}
+
+.dark .bg-neutral-200 {
+  background-color: #3f3f46 !important;
+}
+
+/* Borders */
+.dark .border-neutral-100,
+.dark .border-neutral-200,
+.dark .border-neutral-200\/70,
+.dark .border-neutral-200\/80,
+.dark .border-neutral-200\/90,
+.dark .border-neutral-300 {
+  border-color: #27272a !important;
+}
+
+/* Text contrasts */
+.dark .text-neutral-900 {
+  color: #f4f4f5 !important;
+}
+
+.dark .text-neutral-800 {
+  color: #e4e4e7 !important;
+}
+
+.dark .text-neutral-700 {
+  color: #d4d4d8 !important;
+}
+
+.dark .text-neutral-600 {
+  color: #a1a1aa !important;
+}
+
+.dark .text-neutral-500 {
+  color: #82828e !important;
+}
+
+.dark .text-neutral-400 {
+  color: #71717a !important;
+}
+
+/* Hover states */
+.dark .hover\:bg-neutral-50:hover {
+  background-color: #18181b !important;
+}
+
+.dark .hover\:bg-neutral-100:hover,
+.dark .hover\:bg-neutral-100\/80:hover {
+  background-color: #27272a !important;
+}
+
+.dark .hover\:bg-neutral-200\/60:hover {
+  background-color: #27272a !important;
+}
+
+.dark .hover\:border-neutral-300:hover,
+.dark .hover\:border-neutral-400:hover {
+  border-color: #3f3f46 !important;
+}
+
+/* Modals & Popovers */
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Inputs and Forms */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #18181b !important;
+  border-color: #27272a !important;
+  color: #f4f4f5 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #71717a !important;
+}
+
+/* Dark mode scrollbars */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Hide scrollbars for clean mobile touch carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
