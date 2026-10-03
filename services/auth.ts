@@ -168,6 +168,45 @@ export const authService = {
     return session;
   },
 
+  async sendVerificationOTP(name: string, email: string, password: string): Promise<void> {
+    const cleanEmail = email.trim().toLowerCase();
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const { error } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password,
+        options: {
+          data: { full_name: name }
+        }
+      });
+      if (error) throw new Error(error.message);
+    } else {
+      // Mock mode: just return success to simulate OTP sent
+      console.log("Mock OTP sent to", cleanEmail);
+    }
+  },
+
+  async verifyOTPAndRegister(name: string, email: string, password: string, token: string): Promise<{ session: AuthSession; isNewTrial: boolean }> {
+    const cleanEmail = email.trim().toLowerCase();
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const { error } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token,
+        type: 'signup'
+      });
+      if (error) throw new Error(error.message);
+    } else {
+      // Mock mode: simulate OTP verification
+      if (token !== "123456" && token !== "000000") {
+        throw new Error("Invalid verification code");
+      }
+    }
+    
+    // Now call backend to provision the account
+    return this.register(name, email, password);
+  },
+
   async register(name: string, email: string, password: string): Promise<{ session: AuthSession; isNewTrial: boolean }> {
     const cleanName = name.trim() || 'SyncDrive User';
     const cleanEmail = email.trim().toLowerCase();

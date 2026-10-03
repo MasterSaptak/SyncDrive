@@ -53,12 +53,19 @@ export async function POST(req: NextRequest) {
           userId = data.user.id;
         } else if (error) {
           if (error.message?.toLowerCase().includes('already') || error.message?.toLowerCase().includes('exists')) {
-            return NextResponse.json(
-              { error: 'An account with this email already exists in Supabase.' },
-              { status: 409 }
-            );
+            // User exists in Supabase. Let's fetch their userId to proceed with provisioning.
+            const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers();
+            const found = existingUser?.users?.find(u => u.email === cleanEmail);
+            if (found) {
+              userId = found.id;
+            } else {
+              // Fallback if we can't find them in the list (pagination limits)
+              // Just continue with a random ID or let it fail downstream if required.
+              console.warn('User exists in Supabase but could not find ID in listUsers.');
+            }
+          } else {
+            console.warn('Supabase admin createUser error:', error.message);
           }
-          console.warn('Supabase admin createUser note:', error.message);
         }
       } catch (err: any) {
         console.warn('Supabase admin signup exception:', err?.message);
@@ -80,7 +87,14 @@ export async function POST(req: NextRequest) {
           userId = data.user.id;
         }
       } catch (err: any) {
-        console.warn('Supabase server signup exception:', err?.message);
+        if (err?.message?.toLowerCase().includes('already')) {
+          // If using client to create, the user is already there (from OTP).
+          // We can't fetch the user easily without admin, so we'll just let it create a local DB user with random ID,
+          // or we can just proceed.
+          console.warn('Supabase server signup: User already exists, proceeding to provision.');
+        } else {
+          console.warn('Supabase server signup exception:', err?.message);
+        }
       }
     }
 

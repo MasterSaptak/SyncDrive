@@ -22,6 +22,8 @@ interface AuthContextType {
   isLoading: boolean;
   savedAccounts: SavedAccount[];
   login: (email: string, pass: string, remember?: boolean) => Promise<User>;
+  sendVerificationOTP: (name: string, email: string, pass: string) => Promise<void>;
+  verifyOTPAndRegister: (name: string, email: string, pass: string, token: string) => Promise<User>;
   register: (name: string, email: string, pass: string) => Promise<User>;
   loginWithGoogle: () => Promise<User>;
   switchAccount: (account: SavedAccount) => Promise<User>;
@@ -94,6 +96,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const session = await authService.login(email, pass, remember);
       setUser(session.user);
       refreshSavedAccounts();
+      return session.user;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const sendVerificationOTP = async (name: string, email: string, pass: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await authService.sendVerificationOTP(name, email, pass);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyOTPAndRegister = async (name: string, email: string, pass: string, token: string): Promise<User> => {
+    setIsLoading(true);
+    try {
+      const { session, isNewTrial } = await authService.verifyOTPAndRegister(name, email, pass, token);
+      setUser(session.user);
+      refreshSavedAccounts();
+      if (isNewTrial) {
+        setShowTrialWelcome(true);
+      }
       return session.user;
     } finally {
       setIsLoading(false);
@@ -202,6 +228,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         savedAccounts,
         login,
+        sendVerificationOTP,
+        verifyOTPAndRegister,
         register,
         loginWithGoogle,
         switchAccount,
