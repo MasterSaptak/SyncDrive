@@ -168,6 +168,45 @@ export const authService = {
     return session;
   },
 
+  async sendVerificationOTP(name: string, email: string, password: string): Promise<void> {
+    const cleanEmail = email.trim().toLowerCase();
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const { error } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password,
+        options: {
+          data: { full_name: name }
+        }
+      });
+      if (error) throw new Error(error.message);
+    } else {
+      // Mock mode: just return success to simulate OTP sent
+      console.log("Mock OTP sent to", cleanEmail);
+    }
+  },
+
+  async verifyOTPAndRegister(name: string, email: string, password: string, token: string): Promise<{ session: AuthSession; isNewTrial: boolean }> {
+    const cleanEmail = email.trim().toLowerCase();
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const { error } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token,
+        type: 'signup'
+      });
+      if (error) throw new Error(error.message);
+    } else {
+      // Mock mode: simulate OTP verification
+      if (token !== "123456" && token !== "000000") {
+        throw new Error("Invalid verification code");
+      }
+    }
+    
+    // Now call backend to provision the account
+    return this.register(name, email, password);
+  },
+
   async register(name: string, email: string, password: string): Promise<{ session: AuthSession; isNewTrial: boolean }> {
     const cleanName = name.trim() || 'SyncDrive User';
     const cleanEmail = email.trim().toLowerCase();
@@ -307,16 +346,47 @@ export const authService = {
   },
 
   async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
-    if (!email.includes("@")) {
-      throw new ApiError("Please enter a valid email address", 400);
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail.includes("@")) {
+      throw new Error("Please enter a valid email address");
     }
+    
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined;
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo,
+      });
+      if (error) {
+        console.warn("Forgot password error:", error.message);
+      }
+    }
+    
     return {
       success: true,
-      message: `Password reset instructions have been dispatched to ${email}`
+      // Generic message to prevent email enumeration
+      message: `If an account exists for ${cleanEmail}, you will receive password reset instructions shortly.`
     };
   },
 
-  async resetPassword(_token: string, _newPass: string): Promise<{ success: boolean }> {
+  async resetPassword(_token: string, newPass: string): Promise<{ success: boolean }> {
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const { error } = await supabase.auth.updateUser({
+        password: newPass
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+    }
+    
+    // Sign out to require a fresh login with the new password
+    if (typeof window !== "undefined") {
+      try {
+        await this.logout();
+      } catch {}
+    }
+    
     return { success: true };
   }
 };
