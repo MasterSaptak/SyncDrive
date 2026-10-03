@@ -346,16 +346,47 @@ export const authService = {
   },
 
   async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
-    if (!email.includes("@")) {
-      throw new ApiError("Please enter a valid email address", 400);
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail.includes("@")) {
+      throw new Error("Please enter a valid email address");
     }
+    
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined;
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo,
+      });
+      if (error) {
+        console.warn("Forgot password error:", error.message);
+      }
+    }
+    
     return {
       success: true,
-      message: `Password reset instructions have been dispatched to ${email}`
+      // Generic message to prevent email enumeration
+      message: `If an account exists for ${cleanEmail}, you will receive password reset instructions shortly.`
     };
   },
 
-  async resetPassword(_token: string, _newPass: string): Promise<{ success: boolean }> {
+  async resetPassword(_token: string, newPass: string): Promise<{ success: boolean }> {
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const { error } = await supabase.auth.updateUser({
+        password: newPass
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+    }
+    
+    // Sign out to require a fresh login with the new password
+    if (typeof window !== "undefined") {
+      try {
+        await this.logout();
+      } catch {}
+    }
+    
     return { success: true };
   }
 };

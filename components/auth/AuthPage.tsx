@@ -4,11 +4,12 @@ import React from "react";
 import { UserLoginForm } from "./UserLoginForm";
 import { RegisterForm } from "./RegisterForm";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { ResetPasswordForm } from "./ResetPasswordForm";
 import { ToastContainer } from "../common/ToastContainer";
 import { Cloud, ArrowLeft } from "lucide-react";
 
 interface AuthPageProps {
-  mode: "user-login" | "register" | "forgot-password";
+  mode: "user-login" | "register" | "forgot-password" | "reset-password";
   onNavigate: (path: string) => void;
   onSuccess: () => void;
 }
@@ -44,11 +45,13 @@ export function AuthPage({ mode, onNavigate, onSuccess }: AuthPageProps) {
           {mode === "user-login" && "Sign in to your SyncDrive"}
           {mode === "register" && "Start your 30-Day Free Trial"}
           {mode === "forgot-password" && "Reset your password"}
+          {mode === "reset-password" && "Enter new password"}
         </h2>
         <p className="mt-1 text-xs text-neutral-500">
           {mode === "user-login" && "Access your personal files, folders, and encrypted volumes"}
           {mode === "register" && "25 GB high-performance cloud storage, no credit card required"}
           {mode === "forgot-password" && "Enter your email to receive recovery instructions"}
+          {mode === "reset-password" && "Please enter and confirm your new secure password"}
         </p>
       </div>
 
@@ -64,6 +67,10 @@ export function AuthPage({ mode, onNavigate, onSuccess }: AuthPageProps) {
 
           {mode === "forgot-password" && (
             <ForgotPasswordForm onNavigate={onNavigate} />
+          )}
+
+          {mode === "reset-password" && (
+            <ResetPasswordForm onNavigate={onNavigate} />
           )}
         </div>
       </div>
