@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useNotification } from "@/context/NotificationContext";
 import { User, Mail, Lock, Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
@@ -259,7 +260,9 @@ export function RegisterForm({ onNavigate, returnUrl }: RegisterFormProps) {
                   onChange={(e) => setAgreeTerms(e.target.checked)}
                   className="mt-0.5 rounded border-neutral-300 text-sky-600 focus:ring-sky-500"
                 />
-                <span>I agree to the Terms of Service and Privacy Policy.</span>
+                <span>
+                  I agree to the <Link href="/terms" className="text-sky-600 hover:underline">Terms of Service</Link> and Privacy Policy.
+                </span>
               </label>
             </div>
 
